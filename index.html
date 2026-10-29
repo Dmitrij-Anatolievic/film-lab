@@ -1,0 +1,601 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta charset="utf-8">
+<title>Laboratorio Pellicola</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: banco da laboratorio. A sinistra tre provette (gli strati), al centro il becher, a destra il risultato sui due scatti. Sotto: base, ricette, scheda di progetto. */
+:root{
+  --bg:#e8ecea; --bench:#f5f7f6; --ink:#16201d; --muted:#5f6b67; --line:#cdd5d2;
+  --glass:#ffffff; --glass-edge:#9fb0aa; --accent:#2340c8; --accent-ink:#ffffff; --chip:#dde3e0; --warn:#9a5b00;
+  --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121816; --bench:#1a2220; --ink:#e6ece9; --muted:#97a39f; --line:#2c3633;
+  --glass:#202a27; --glass-edge:#5d6d68; --accent:#7f95ff; --accent-ink:#0d1120; --chip:#26302d; --warn:#e3a84a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121816; --bench:#1a2220; --ink:#e6ece9; --muted:#97a39f; --line:#2c3633;
+  --glass:#202a27; --glass-edge:#5d6d68; --accent:#7f95ff; --accent-ink:#0d1120; --chip:#26302d; --warn:#e3a84a; color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body)}
+.wrap{max-width:1240px;margin:0 auto;padding-block:24px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:22px}
+header{display:grid;gap:10px}
+.kicker{font:500 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+h1{font:800 clamp(32px,5.4vw,58px)/.95 var(--f-display);letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font:700 20px/1.15 var(--f-display);margin:0}
+.lede{max-width:70ch;margin:0}
+.muted{color:var(--muted)}
+.mono{font-family:var(--f-mono)}
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.55fr) minmax(0,1.3fr);gap:16px;align-items:start}
+.panel{background:var(--bench);border:1px solid var(--line);border-radius:6px;padding:14px;display:grid;gap:12px;min-width:0}
+.tubes{display:grid;gap:10px}
+.tube{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--glass)}
+.tube.off{opacity:.55}
+.tube svg{width:44px;height:120px;display:block;transition:transform .5s ease}
+.tube .lbl{font:500 11px/1.2 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.fields{display:grid;gap:7px;min-width:0}
+.row{display:grid;grid-template-columns:86px minmax(0,1fr);gap:8px;align-items:center}
+.row label{font-size:12.5px;color:var(--muted)}
+select,input[type=range]{width:100%;min-width:0}
+select{font:inherit;font-size:13.5px;padding:5px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bench);color:var(--ink)}
+input[type=range]{accent-color:var(--accent)}
+.val{font:12px var(--f-mono);color:var(--muted);text-align:right;min-width:42px}
+.rng{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.beaker{display:grid;justify-items:center;gap:10px;text-align:center}
+.beaker svg{width:100%;max-width:170px;height:auto;display:block}
+.pour{font:600 15px/1 var(--f-body);background:var(--accent);color:var(--accent-ink);border:0;border-radius:999px;padding:12px 18px;cursor:pointer}
+.pour:focus-visible,button:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.stat{font:12px/1.4 var(--f-mono);color:var(--muted)}
+.stat b{color:var(--ink);font-weight:500}
+.stat .warn{color:var(--warn)}
+.result{display:grid;gap:10px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button,.chip{font:500 13px/1 var(--f-body);color:var(--ink);background:var(--chip);border:1px solid transparent;border-radius:999px;padding:8px 12px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.chip:hover{border-color:var(--accent)}
+.frame{position:relative;background:#000;border-radius:4px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.frame canvas{width:100%;height:auto;display:block}
+.frame .tag{position:absolute;left:8px;bottom:8px;font:500 11px var(--f-mono);color:#fff;background:rgba(0,0,0,.55);padding:4px 7px;border-radius:3px;letter-spacing:.06em}
+.hold{font-size:12.5px;color:var(--muted)}
+.cap{font:500 11px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.strip{--mask:#d9a074;--hole:#fbfbf6;background:var(--mask);padding:0 2.5%;border-radius:2px;position:relative;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+.strip .holes{height:24px;background:radial-gradient(circle at 50% 50%,transparent 0,transparent 0) ,repeating-linear-gradient(90deg,transparent 0 9px,var(--hole) 9px 23px,transparent 23px 32px);background-size:100% 100%;mask:linear-gradient(#000,#000) center/100% 12px no-repeat;-webkit-mask:linear-gradient(#000,#000) center/100% 12px no-repeat}
+.strip canvas{width:100%;height:auto;display:block}
+.strip .edge{position:absolute;left:4%;top:4px;background:var(--mask);padding:2px 6px;z-index:1;font:500 9px/1 var(--f-mono);letter-spacing:.2em;color:rgba(0,0,0,.45)}
+.strip .edge.b{top:auto;bottom:2px;left:auto;right:4%}
+.mixgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+.sw-big{width:100%;aspect-ratio:3/2;border-radius:6px;border:1px solid var(--line)}
+.sw-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.sw-s{width:34px;height:34px;border-radius:5px;border:1px solid var(--line);flex:none}
+.step{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line)}
+.step:first-child{border-top:0}
+.small{font-size:13px;color:var(--muted)}
+.insp-on .frame{cursor:crosshair;outline:2px solid var(--accent)}
+.mark{position:absolute;width:16px;height:16px;border:2px solid #fff;border-radius:50%;box-shadow:0 0 0 1px #000;transform:translate(-50%,-50%);pointer-events:none}
+@media (max-width:760px){.mixgrid{grid-template-columns:minmax(0,1fr)}}
+.maskrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.maskrow label{font:11px var(--f-mono);color:var(--muted);display:grid;gap:2px}
+[hidden]{display:none!important}
+.under{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+.recipes{display:flex;flex-wrap:wrap;gap:6px}
+.chip small{font:11px var(--f-mono);color:var(--muted);margin-left:4px}
+pre.sheet{margin:0;font:12.5px/1.6 var(--f-mono);white-space:pre-wrap;background:var(--glass);border:1px solid var(--line);border-radius:4px;padding:12px;max-height:340px;overflow:auto}
+.copy{justify-self:start;font:500 13px var(--f-body);background:transparent;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:7px 12px;cursor:pointer}
+.explain{display:grid;gap:10px;max-width:78ch}
+.explain p{margin:0}
+.src{width:100%;border-collapse:collapse;font-size:13px}
+.src th,.src td{text-align:left;vertical-align:top;padding:7px 8px;border-top:1px solid var(--line)}
+.src th{font:500 11px var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.src td:nth-child(2){font-family:var(--f-mono);white-space:nowrap}
+.lvl{font:500 11px var(--f-mono);padding:2px 6px;border-radius:3px;white-space:nowrap}
+.l2{background:#d6efdc;color:#155c2a}.l1{background:#fdf0d2;color:#7a5200}.l0{background:#f6dcdc;color:#7a1f1f}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .l2{background:#1d3a25;color:#9be0ad}:root:not([data-theme="light"]) .l1{background:#3d3018;color:#f0cc7f}:root:not([data-theme="light"]) .l0{background:#3f1f1f;color:#f0a8a8}}
+:root[data-theme="dark"] .l2{background:#1d3a25;color:#9be0ad}:root[data-theme="dark"] .l1{background:#3d3018;color:#f0cc7f}:root[data-theme="dark"] .l0{background:#3f1f1f;color:#f0a8a8}
+.tbl{overflow-x:auto}
+.swatches{display:flex;flex-wrap:wrap;gap:6px}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 2px var(--bench) inset}
+/* animazione versamento */
+.puff{position:absolute;inset:0;pointer-events:none;display:grid;place-items:center}
+.puff i{width:40px;height:40px;border-radius:50%;opacity:0}
+@media (prefers-reduced-motion:no-preference){
+  .lab.pouring .tube svg{transform:rotate(-38deg) translateY(-6px)}
+  .lab.pouring .puff i{animation:puf .9s ease-out .35s}
+  #liquid{transition:y .7s ease .2s,height .7s ease .2s,fill .5s ease}
+}
+@keyframes puf{0%{opacity:.85;transform:scale(.3)}100%{opacity:0;transform:scale(4.5)}}
+@media (max-width:980px){.lab{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.result-panel{grid-column:1/-1}}
+@media (max-width:640px){.lab,.under{grid-template-columns:minmax(0,1fr)}.result-panel{grid-column:auto}}
+</style>
+
+<div class="wrap">
+<header>
+  <span class="kicker">Banco emulsioni · 3 strati · simulazione su RAW Nikon Zfc</span>
+  <h1>Laboratorio Pellicola</h1>
+  <p class="lede">Ogni provetta è uno strato della pellicola. Scegli a quale luce è sensibile e quale colorante forma allo sviluppo, regola contrasto e densità, poi versa nel becher: il risultato appare sui tuoi due scatti. Tieni premuta l'immagine per vedere l'originale.</p>
+</header>
+
+<section class="lab" id="lab" aria-label="Banco">
+  <div class="panel">
+    <h2>Provette</h2>
+    <div class="tubes" id="tubes"></div>
+  </div>
+
+  <div class="panel beaker">
+    <h2>Becher</h2>
+    <div style="position:relative;width:100%;display:grid;justify-items:center">
+      <svg viewBox="0 0 170 200" role="img" aria-label="Becher con il colore medio della pellicola">
+        <defs><clipPath id="bk"><path d="M30 30 L30 175 Q30 188 43 188 L127 188 Q140 188 140 175 L140 30 Z"/></clipPath></defs>
+        <rect id="liquid" x="20" y="80" width="130" height="120" clip-path="url(#bk)" fill="#888"/>
+        <path d="M22 22 L30 30 L30 175 Q30 188 43 188 L127 188 Q140 188 140 175 L140 30 L148 22" fill="none" stroke="var(--glass-edge)" stroke-width="3" stroke-linejoin="round"/>
+        <g stroke="var(--glass-edge)" stroke-width="1.5"><line x1="140" y1="70" x2="128" y2="70"/><line x1="140" y1="100" x2="132" y2="100"/><line x1="140" y1="130" x2="128" y2="130"/><line x1="140" y1="160" x2="132" y2="160"/></g>
+        <text x="122" y="66" font-size="9" font-family="IBM Plex Mono,monospace" fill="var(--muted)" text-anchor="end">250 ml</text>
+      </svg>
+      <div class="puff"><i id="puffdot"></i></div>
+    </div>
+    <button class="pour" id="pour" type="button">Versa nel becher</button>
+    <div class="stat" id="stat"></div>
+  </div>
+
+  <div class="panel result-panel">
+    <div class="result">
+      <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
+        <h2>Risultato</h2>
+        <div class="seg" id="scene">
+          <button type="button" data-v="A" aria-pressed="true">Vesuvio</button>
+          <button type="button" data-v="B" aria-pressed="false">Portale</button>
+          <button type="button" data-v="U" aria-pressed="false" id="ubtn" hidden>La tua foto</button>
+          <label class="chip" style="cursor:pointer">Carica foto…<input type="file" id="upl" accept="image/jpeg,image/png,image/webp" hidden></label>
+        </div>
+      </div>
+      <div id="negbox" class="result">
+        <div class="cap"><span>1 · Negativo sul visore</span><span id="maskinfo"></span></div>
+        <div class="strip" id="strip"><span class="edge">LAB · 200 · ▸ 12</span><div class="holes"></div><canvas id="neg" width="960" height="639" aria-label="Negativo simulato"></canvas><div class="holes"></div><span class="edge b">12A ◂ · LAB</span></div>
+      </div>
+      <div class="cap"><span id="poscap">2 · Positivo (stampa)</span><span></span></div>
+      <div class="frame" id="frame"><canvas id="out" width="960" height="639" aria-label="Simulazione della pellicola"></canvas><span class="tag" id="ftag">simulazione</span></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button type="button" class="copy" id="inspbtn">Ispeziona un punto</button><span class="small" id="insphint">Tocca il pulsante, poi tocca un punto della foto: vedi cosa succede in ogni provetta.</span></div>
+      <div id="insp" hidden></div>
+      <span class="hold">Tieni premuto sul positivo per l'originale. Le scene di esempio usano i dati lineari dei NEF. Le foto caricate restano nel tuo browser; essendo JPEG contengono già la curva della fotocamera, quindi sono un'approssimazione: per la massima fedeltà mandami il NEF e lo converto io.</span>
+    </div>
+  </div>
+</section>
+
+<section class="panel explain" id="mix" style="max-width:none">
+  <h2>Come si mescolano i colori (esempio)</h2>
+  <div class="mixgrid">
+    <div style="display:grid;gap:10px">
+      <p>In pellicola i colori si mescolano <b>per sottrazione</b>. Ogni colorante è un filtro che toglie una parte della luce bianca: il <b>giallo</b> toglie il blu, il <b>magenta</b> toglie il verde, il <b>ciano</b> toglie il rosso. Sovrapposti, tolgono entrambe le parti:</p>
+      <div class="sw-row" id="mixpairs"></div>
+      <p class="small">Prova tu: muovi le tre quantità di colorante. Il riquadro mostra la luce bianca che attraversa i tre strati. Uso le curve reali dei coloranti Kodak Vision3: per questo il magenta tira un po' sul rosso e il ciano scurisce anche il verde. Con quantità uguali dei tre non esce un grigio perfetto ma un marrone: è normale, ogni pellicola dosa i coloranti in modo diverso per ottenere il grigio.</p>
+      <div class="row"><label for="mxY">Giallo</label><div class="rng"><input type="range" id="mxY" min="0" max="2" step="0.05" value="0"><span class="val" id="mxYv">0</span></div></div>
+      <div class="row"><label for="mxM">Magenta</label><div class="rng"><input type="range" id="mxM" min="0" max="2" step="0.05" value="0.8"><span class="val" id="mxMv">0.8</span></div></div>
+      <div class="row"><label for="mxC">Ciano</label><div class="rng"><input type="range" id="mxC" min="0" max="2" step="0.05" value="0"><span class="val" id="mxCv">0</span></div></div>
+    </div>
+    <div style="display:grid;gap:10px">
+      <div class="sw-big" id="mxout"></div>
+      <div class="small" id="mxtxt"></div>
+    </div>
+  </div>
+  <h2 style="margin-top:8px">Esempio passo per passo: il cielo azzurro</h2>
+  <div id="example"></div>
+  <p class="small">Per vedere lo stesso ragionamento su qualsiasi punto della tua foto usa «Ispeziona un punto» nel riquadro del risultato.</p>
+</section>
+
+<section class="panel explain" id="chim" style="max-width:none">
+  <h2>Chimica a basso impatto: cosa sappiamo</h2>
+  <p>Prima ricognizione per il progetto. Il punto chiave: <b>il problema principale non è lo sviluppo ma l'argento</b>, che finisce nel fissaggio (o nella sbianca-fissaggio del colore) e va recuperato.</p>
+  <div class="tbl"><table class="src">
+  <tr><th>Tema</th><th>Cosa risulta</th><th>Livello</th><th>Fonti</th></tr>
+  <tr><td>Sviluppo B/N con caffè (Caffenol)</td><td>Caffè solubile + carbonato di sodio (soda da bucato) + vitamina C sviluppa normalmente la pellicola B/N. Uno studio universitario lo ha confrontato con il Kodak D-76: la vitamina C accorcia lo sviluppo; ottimo trovato con 1000 mg di vitamina C, 17,25 g di carbonato, 11 minuti (il volume non è indicato nell'abstract)</td><td><span class="lvl l1">1 fonte</span></td><td>Chulalongkorn University, progetto di laurea 2020 (abstract letto). Esistono molte guide pratiche (Lomography, 35mmc) che non ho letto per intero</td></tr>
+  <tr><td>Sviluppi all'acido ascorbico (vitamina C)</td><td>Esistono sviluppi commerciali senza idrochinone a base di derivati della vitamina C, presentati come a bassa tossicità (es. Kodak Xtol, Adox XT-3, LegacyPro EcoPro). Bellini Eco Film dichiara di non contenere agenti dannosi ma non dice quali usa</td><td><span class="lvl l1">1 fonte</span></td><td>Wikipedia «Xtol» (cita Kodak J-109); scheda Bellini; Freestyle</td></tr>
+  <tr><td>Pellicola a colori sviluppata nel caffè</td><td><b>Non dà colori</b>: si ottiene un negativo monocromatico più la maschera arancio. I coloranti nascono solo dalla reazione tra lo sviluppatore cromogeno ossidato e gli accoppiatori presenti nella pellicola</td><td><span class="lvl l2">2+ fonti</span></td><td>Photrio «Caffenol for color?»; Kodak, Film Essentials 04 (meccanismo di accoppiamento)</td></tr>
+  <tr><td>Sviluppatore del colore C-41 (CD-4)</td><td>Derivato della parafenilendiammina, sensibilizzante cutaneo; segnalato come più tossico per l'ambiente acquatico dell'idrochinone. Per rullino le quantità sono di milligrammi</td><td><span class="lvl l1">1 fonte secondaria</span></td><td>Blog J. Senior (cita ECHA, IARC 127) — citazioni non verificate da me</td></tr>
+  <tr><td>Sbianca del colore (EDTA ferrico)</td><td>L'EDTA è poco biodegradabile e persistente. Esistono sbianche con PDTA (usate da Kodak), più rapide; un confronto ambientale EDTA/PDTA non l'ho trovato</td><td><span class="lvl l1">1 fonte secondaria</span></td><td>Blog J. Senior (cita Nörtemann 1999, Sillanpää 1997); Photrio</td></tr>
+  <tr><td>Argento</td><td>Il fissaggio esausto contiene argento in quantità rilevante; il recupero (elettrolisi, sostituzione metallica, scambio ionico) supera il 90%. L'argento ionico libero è la forma tossica; i complessi lo sono molto meno. Non va versato nello scarico senza recupero</td><td><span class="lvl l2">2+ fonti</span></td><td>Kodak J-216 (1999); Weill Cornell EHS, linee guida sui rifiuti fotografici</td></tr>
+  <tr><td>Conseguenza per il progetto</td><td>Con la chimica attuale una pellicola <b>a colori</b> «verde» non può usare sviluppi naturali. Strade possibili da studiare: (1) pellicola B/N con sviluppo a basso impatto e recupero dell'argento; (2) colore ottenuto da tre esposizioni B/N con filtri (separazioni), tutto in chimica B/N; (3) nuove chimiche di accoppiamento — ricerca di livello industriale</td><td><span class="lvl l0">ipotesi</span></td><td>Deduzione mia dalle righe sopra, da verificare</td></tr>
+  </table></div>
+</section>
+
+<section class="under">
+  <div class="panel">
+    <h2>Processo e supporto</h2>
+    <div class="row"><label>Processo</label><div class="seg" id="proc"><button type="button" data-v="neg">Negativo (C-41)</button><button type="button" data-v="pos">Invertibile (E-6)</button></div></div>
+    <div id="maskctl" style="display:grid;gap:8px">
+      <div class="row"><label>Supporto</label><div class="seg" id="maskp"></div></div>
+      <div class="row"><label>Densità supporto</label><div class="maskrow">
+        <label>R <input type="range" id="mR" min="0" max="1.2" step="0.01"></label>
+        <label>V <input type="range" id="mG" min="0" max="1.2" step="0.01"></label>
+        <label>B <input type="range" id="mB" min="0" max="1.2" step="0.01"></label></div></div>
+      <div class="row"><label for="cset">Curve colore</label><select id="cset"></select></div>
+      <div class="row"><label for="bwsel">Curva B/N</label><select id="bwsel"></select></div>
+      <div class="row"><label>Bilanciamento</label><div class="seg" id="balm"><button type="button" data-v="auto">Automatico sul grigio</button><button type="button" data-v="fisso">Fisso (lab C-41 tarato su Kodak Gold)</button></div></div>
+      <div class="row"><label>Stampa</label><div class="seg" id="printm"><button type="button" data-v="scan">Scansione neutra</button><button type="button" data-v="carta">Carta Harman (curva reale)</button></div></div>
+      <div class="row"><label for="pg">Contrasto stampa</label><div class="rng"><input type="range" id="pg" min="0.6" max="2" step="0.05"><span class="val" id="pgv"></span></div></div>
+    </div>
+    <div class="row"><label id="baselbl">Base</label><div class="swatches" id="bases"></div></div>
+    <div class="row"><label for="ev">Esposizione</label><div class="rng"><input type="range" id="ev" min="-2" max="2" step="0.1" value="0"><span class="val" id="evv">0 EV</span></div></div>
+    <div class="row"><label for="grain">Grana</label><div class="rng"><input type="range" id="grain" min="0" max="1" step="0.05" value="0.3"><span class="val" id="grainv">0.30</span></div></div>
+    <h2 style="margin-top:6px">Ricette</h2>
+    <div class="recipes" id="recipes"></div>
+    <p class="muted" style="margin:0;font-size:13px">Le ricette "tipo" ricostruiscono il principio delle pellicole note (quale strato vede cosa e che colorante forma), non la loro resa esatta.</p>
+  </div>
+  <div class="panel">
+    <h2>Scheda di progetto</h2>
+    <pre class="sheet" id="sheet"></pre>
+    <button class="copy" id="copy" type="button">Copia la scheda</button>
+  </div>
+</section>
+
+<section class="panel explain">
+  <h2>Come funziona questa simulazione</h2>
+  <p>Una pellicola a colori registra la luce in tre "record": uno sensibile al blu, uno al verde, uno al rosso. Allo sviluppo ciascuno forma un colorante: giallo, magenta e ciano. Dove la luce era tanta resta poco colorante, dove era poca ne resta tanto. Cambiando a cosa è sensibile uno strato, o quale colorante forma, i colori si scambiano: è così che funzionano Aerochrome (strati sensibili a verde, rosso e infrarosso) e Harman Switch Azure (due accoppiatori scambiati).</p>
+  <p>Nelle pellicole reali ogni record può essere diviso in sottostrati veloce, medio e lento, e c'è uno strato filtro giallo: tutti gli alogenuri d'argento sono sensibili al blu, e il filtro impedisce che il blu arrivi agli strati sotto. Alcune Fujifilm (Reala, alcune Superia) avevano un quarto strato sensibile al ciano, per correggere la resa sotto luce fluorescente.</p>
+  <p>Ogni strato segue la sua <b>curva caratteristica</b>: la densità in funzione del logaritmo dell'esposizione, con piede, tratto rettilineo e spalla. La pendenza del tratto rettilineo è il <b>γ</b>. Qui la curva è quella di una pellicola invertibile (diapositiva): più luce, meno colorante. Le densità dei tre coloranti si sommano, e la luce che passa è 10<sup>−D</sup>. Con γ = 1 e i coloranti standard il risultato riproduce la scena. La <b>luce ricevuta</b> simula quanta luce arriva a uno strato dopo filtri o strati sovrastanti. Nella redscale la pellicola è esposta dal lato del supporto: lo strato sensibile al rosso riceve luce piena, quello al blu quasi niente.</p>
+  <p><b>Negativo e stampa.</b> Nel processo negativo la curva sale: più luce, più colorante. Il negativo ha contrasto basso (Kodak Gold 200: γ 0,54–0,62 secondo la scheda tecnica; la curva usata qui è proprio quella) e la carta da stampa contrasto alto (circa 2,5). Il supporto colorato (arancio nel colore; in alcune B/N una base tinta di grigio contro l'alone, mentre per esempio i rulli 120 Ilford HP5 hanno base trasparente) si vede sul negativo, ma in stampa o in scansione viene compensato con il bilanciamento sul grigio. Per questo il "Contrasto stampa" qui è il contrasto complessivo: 1 riproduce la scena; con una carta reale si arriva intorno a 1,5. Il colore della carta (il cerchio "Carta") resta invece nel positivo.</p>
+  <p class="muted">Limiti: il RAW registra tre canali, non lo spettro completo. Le bande "giallo" e "ciano" sono combinazioni di canali, e l'infrarosso è stimato riconoscendo la vegetazione dal colore. I coloranti giallo, magenta e ciano sono quelli reali Kodak Vision3 (pellicola cinema); quelli «fantasia» hanno spettri stimati. La maschera arancio qui è un colore uniforme del supporto: nelle pellicole vere è formata da accoppiatori colorati e cambia con l'esposizione, perché serve a compensare gli assorbimenti secondari dei coloranti. Le densità del supporto preimpostate vengono dalle schede tecniche dove esistono: vedi la tabella delle fonti. La chimica Polaroid è a diffusione e non cromogena: la Duochrome qui è un'approssimazione visiva. Il risultato serve a capire l'idea; un produttore dovrà verificarlo con curve spettrali reali.</p>
+</section>
+
+<section class="panel explain" style="max-width:none">
+  <h2>Dati del modello e fonti</h2>
+  <p class="muted">Livelli: <span class="lvl l2">2+ fonti</span> confermato da almeno due fonti indipendenti · <span class="lvl l1">1 fonte</span> una sola fonte, o fonte secondaria · <span class="lvl l0">stima</span> scelta del modello, da verificare.</p>
+  <div class="tbl"><table class="src">
+  <tr><th>Parametro</th><th>Valore</th><th>Livello</th><th>Fonti</th></tr>
+  <tr><td>Strato sensibile al blu → giallo, verde → magenta, rosso → ciano</td><td>regola</td><td><span class="lvl l2">2+ fonti</span></td><td>Kodak, Film Essentials 04; Britannica; Wikipedia C-41</td></tr>
+  <tr><td>Sottostrati veloce/medio/lento</td><td>fino a 3 per colore</td><td><span class="lvl l1">1 fonte</span></td><td>Kodak, Film Essentials 04</td></tr>
+  <tr><td>Densità D = log(1/trasmissione), curva D–log E, γ = pendenza</td><td>definizione</td><td><span class="lvl l2">2+ fonti</span></td><td>Kodak H-740; Wikipedia Sensitometry; glossario B. Pritchard</td></tr>
+  <tr><td>γ del negativo a colori</td><td>≈ 0,60</td><td><span class="lvl l2">2+ fonti</span></td><td>Brevetto US5972585 (Status M: 0,62/0,64/0,76 per R/V/B, pellicola di controllo); Photrio, ex ingegnere Kodak (0,60–0,65 professionali, 0,75+ amatoriali)</td></tr>
+  <tr><td>γ del negativo B/N</td><td>0,45–0,65</td><td><span class="lvl l2">2+ fonti</span></td><td>Kodak H-740; 35mmc (FP4 Plus ≈ 0,8 in Ilfotec HC)</td></tr>
+  <tr><td>γ della carta</td><td>colore ≈ 2,5; B/N 1,5–3,5 (grado 2 ≈ 2)</td><td><span class="lvl l1">1 fonte</span></td><td>Kodak H-740 (B/N); Photrio (colore; un altro utente indica 3–4)</td></tr>
+  <tr><td>Grigio 18% sul negativo (LAD, densità totale)</td><td>R 0,80 · V 1,20 · B 1,60</td><td><span class="lvl l1">1 fonte</span></td><td>Kodak H-61a, LAD for Kodak Color Negative Film</td></tr>
+  <tr><td>Curve del negativo a colori (usate nel modello)</td><td>Kodak Gold 200, 39 punti per strato</td><td><span class="lvl l2">dato ufficiale</span></td><td>Kodak E-7022, curve estratte dal PDF vettoriale (coordinate esatte, non lette a occhio)</td></tr>
+  <tr><td>Kodak Gold 200: D-min (supporto)</td><td>R 0,25 · V 0,66 · B 0,99</td><td><span class="lvl l2">dato ufficiale</span></td><td>Kodak E-7022 (curve). Ordine di grandezza confermato da Photrio (pro tipico 0,20 / 0,65 / 0,85) e da Scantips</td></tr>
+  <tr><td>Kodak Gold 200: grigio 18%</td><td>R 0,92 · V 1,38 · B 1,74</td><td><span class="lvl l2">2+ fonti</span></td><td>E-7022 curve; E-7022 testo (cartoncino grigio, rosso 0,85–1,05); Kodak H-61a LAD (R 0,80)</td></tr>
+  <tr><td>Kodak Gold 200: γ al grigio</td><td>R 0,54 · V 0,57 · B 0,62</td><td><span class="lvl l2">2+ fonti</span></td><td>E-7022 curve; coerente con brevetto US5972585 e Photrio (~0,6)</td></tr>
+  <tr><td>Harman Phoenix II: niente maschera arancio</td><td>supporto chiaro</td><td><span class="lvl l2">dato ufficiale</span></td><td>Harman, scheda tecnica Phoenix II (lug. 2025). La densità del supporto non è indicata: nel modello 0,08 è una stima</td></tr>
+  <tr><td>Curva B/N (usata nel modello)</td><td>HP5 Plus: base + velo 0,18; pendenza ≈ 0,65</td><td><span class="lvl l2">2+ fonti</span></td><td>Scheda Ilford/Harman HP5 Plus (grafico raster, ±0,02); 35mmc (≈ 0,2); Kodak H-740 (0,58–0,65)</td></tr>
+  <tr><td>Curve B/N selezionabili</td><td>HP5 Plus, FP4 Plus, Delta 100, Delta 400, XP2 Super</td><td><span class="lvl l2">dato ufficiale</span></td><td>Schede Ilford/Harman (2018–2023): grafici raster estratti in automatico dai pixel, verificati sovrapponendo i punti al grafico; controllo incrociato HP5 con lettura manuale (scarto ≤ 0,04)</td></tr>
+  <tr><td>Kodak ColorPlus 200 (bordo "KODAK 200-8") misurata con la Zfc (zona non esposta)</td><td>R 0,44 · V 0,75 · B 1,03 (zona velata: 1,34 / 1,79 / 1,95)</td><td><span class="lvl l1">misura propria</span></td><td>4 NEF Zfc (1/125, f/1.8, ISO 100) su schermo bianco: D = log10(bianco / pellicola) pixel per pixel. Sfondo senza pellicola = 0,00; due scatti indipendenti concordano entro 0,005. Canali della fotocamera, non Status M; la zona scura può essere sottostimata dalla luce diffusa. Kodak non pubblica una scheda tecnica della ColorPlus 200 (non trovata): questa misura è l'unico dato disponibile</td></tr>
+  <tr><td>Fomapan 100, 35mm: base + velo misurata con la Zfc</td><td>R 0,34 · V 0,35 · B 0,31 (nero denso ≈ 2,0 neutro)</td><td><span class="lvl l1">misura propria</span></td><td>5 NEF Zfc; due scatti concordano entro 0,005. Il blu più trasparente è coerente con la scheda Foma (base 35mm «grigia o grigio-blu», triacetato 0,125 mm). Il nero d'argento dà R = V = B: i canali della Zfc non falsano le densità neutre</td></tr>
+  <tr><td>LomoChrome Metropolis: bordo tra le perforazioni</td><td>R 0,45 · V 0,51 · B 0,74</td><td><span class="lvl l1">misura propria</span></td><td>NEF Zfc confrontato con due scatti del bianco indipendenti (DSC_2952 e DSC_2956): concordano entro 0,004; coerente anche con la stima dal solo sfondo (0,43 / 0,50 / 0,74). Supporto giallastro, meno denso della maschera Kodak. Lomography non pubblica la costruzione</td></tr>
+  <tr><td>Shanghai GP3 100: base + velo</td><td>R 0,17 · V 0,16 · B 0,15 (fotogramma vuoto); coda velata 1,68 / 1,70 / 1,72</td><td><span class="lvl l1">misura propria</span></td><td>Stesso metodo, due bianchi concordano entro 0,004. Base trasparente e neutra, a differenza della Fomapan 35mm grigio-blu</td></tr>
+  <tr><td>Harman Red: curve R/G/B e D-min</td><td>D-min R 0,44 · V 0,65 · B 0,47</td><td><span class="lvl l2">dato ufficiale</span></td><td>Scheda Harman Red (giu. 2025), grafico estratto per colore. Costruzione dalla scheda: canale rosso = rosso + blu, verde = verde + blu, blu quasi vuoto; emulsione esposta dal lato invertito</td></tr>
+  <tr><td>Switch Azure: blu→canale rosso, verde→verde, rosso→canale blu</td><td>costruzione</td><td><span class="lvl l2">dato ufficiale</span></td><td>Scheda Harman Switch Azure (B26). Nessuna curva caratteristica pubblicata</td></tr>
+  <tr><td>Bilanciamento "fisso" in stampa</td><td>filtraggio tarato sul grigio Kodak Gold 200</td><td><span class="lvl l1">modello</span></td><td>Il grigio Gold 0,92/1,38/1,74 è da scheda E-7022. Che un laboratorio usi un filtraggio fisso è una semplificazione: gli scanner moderni bilanciano in automatico. Harman avverte che per Red e le Phoenix servono correzioni di densità e colore</td></tr>
+  <tr><td>Posizione del grigio sulle curve con asse relativo</td><td>B/N: 1,2 log sopra il punto di velocità · Harman Red: verde netto 0,6</td><td><span class="lvl l0">convenzione</span></td><td>B/N: sistema zonale (zona V = 4 stop sopra la zona I). Colore: analogia con il LAD Kodak (grigio netto 0,55–0,75). Le schede hanno solo un asse relativo</td></tr>
+  <tr><td>Maschera: accoppiatori colorati che si distruggono dove si forma il colorante</td><td>meccanismo</td><td><span class="lvl l2">2+ fonti</span></td><td>Manuale US Army SS0514; Wikipedia C-41; B. Pritchard; Kodak H-740</td></tr>
+  <tr><td>Redscale: esposta dal lato della base</td><td>meccanismo</td><td><span class="lvl l1">1 fonte</span></td><td>Wikipedia, Redscale</td></tr>
+  <tr><td>Quarto strato Fuji (Reala)</td><td>sensibile al ciano</td><td><span class="lvl l1">1 fonte</span></td><td>Wikipedia, Fujifilm Superia</td></tr>
+  <tr><td>Curva della carta (opzione "Carta Harman")</td><td>D-min ≈ 0,02 · D-max ≈ 2,1 · pendenza max ≈ 3</td><td><span class="lvl l2">dato ufficiale</span></td><td>Harman, Galerie RC Digital Silver (set. 2011), curva estratta dal PDF vettoriale; D-max nel testo "fino a 2,15". Pendenza coerente con Kodak H-740 (carte 1,5–3,5). È una carta B/N per esposizione digitale: per la stampa a colori è un'approssimazione</td></tr>
+  <tr><td>Carta Harman GDS FB (riferimento)</td><td>D-max 2,25 lucida / 1,40 opaca · D-min 0,06 / 0,03</td><td><span class="lvl l2">dato ufficiale</span></td><td>Harman, GDS FB (gen. 2019)</td></tr>
+  <tr><td>γ del negativo B/N, riferimento storico</td><td>0,7–0,8 "preferibile"</td><td><span class="lvl l1">1 fonte</span></td><td>A. Feininger, <i>Feininger on Photography</i>, ed. riv. 1953 (archive.org). Oggi Kodak indica 0,58–0,65</td></tr>
+  <tr><td>Oltre la curva pubblicata (più di 2 log sopra il grigio)</td><td>prosecuzione lineare fino a Dmax</td><td><span class="lvl l0">stima</span></td><td>la scheda Kodak si ferma a +2 log</td></tr>
+  <tr><td>Curva della diapositiva (E-6)</td><td>γ 1 = scena</td><td><span class="lvl l0">stima</span></td><td>nessun valore numerico trovato</td></tr>
+  <tr><td>Sensibilità spettrale degli strati (opzione «Curva reale Kodak Gold»)</td><td>giallo 370–500 nm (picco 470) · magenta 380–590 (picco 550, più sensibilità al blu ~1 log sotto) · ciano 390–680 (picco 650)</td><td><span class="lvl l2">dato ufficiale</span></td><td>Kodak E-7022, curve estratte dal PDF vettoriale; griglia di controllo: linee a 300…700 nm e 1,0/2,0/3,0 ritrovate entro 0,1 nm e 0,02</td></tr>
+  <tr><td>Densità spettrali dei coloranti giallo, magenta, ciano e della D-min</td><td>picchi 450 / 540 / 690 nm, con assorbimenti secondari</td><td><span class="lvl l2">dato ufficiale</span></td><td>Kodak Vision3 50D (H-1-5203t), estratte dal PDF vettoriale. È una pellicola cinema (ECN-2), non la Gold: approssimazione per i coloranti di una C-41. Magenta 400–440 nm = 0 come nel grafico</td></tr>
+  <tr><td>Maschera ad accoppiatori colorati</td><td>annulla gli assorbimenti del ciano sotto 580 nm e del magenta sotto 480 nm</td><td><span class="lvl l1">modello</span></td><td>Meccanismo da manuale US Army SS0514 e Wikipedia C-41 (mascherati ciano e magenta, giallo no). I confini 580/480 nm sono scelti da me sulle curve</td></tr>
+  <tr><td>Spettro della scena</td><td>ricostruito dal RGB lineare</td><td><span class="lvl l1">metodo pubblicato</span></td><td>Basi di Mallett & Yuksel (2019), libreria colour-science; ritorno RGB→spettro→RGB entro 1%. Lo spettro vero della scena non è noto: due colori uguali per la fotocamera restano uguali anche per la pellicola</td></tr>
+  <tr><td>Colorimetria</td><td>CIE 1931 2°, D65, sRGB</td><td><span class="lvl l2">standard</span></td><td>colour-science 0.4.7</td></tr>
+  <tr><td>Scansione del negativo</td><td>«fotocamera» con canali sRGB, tarata su una scala di grigi</td><td><span class="lvl l1">modello</span></td><td>Come si profila uno scanner con una scala di grigi. Test interno su ColorChecker virtuale: grigi entro ΔE 0,1; colori ΔE medio 4,1 (è coerenza del modello, non fedeltà a una pellicola reale)</td></tr>
+  <tr><td>Coloranti «fantasia» (rosso, viola, oro…)</td><td>spettro ricavato dal colore</td><td><span class="lvl l0">stima</span></td><td>Nessun colorante reale corrispondente: forma spettrale plausibile, non misurata</td></tr>
+  <tr><td>Immagini di partenza</td><td>NEF Zfc → RGB lineare 16 bit</td><td><span class="lvl l2">dato misurato</span></td><td>Decodifica senza curva tonale né luminosità automatica (prima: JPEG con gamma e auto-luminosità, errore corretto). Esposizione base: media geometrica della luminanza = 18%, come un esposimetro a media (convenzione)</td></tr>
+  <tr><td>Bande dal RAW e infrarosso</td><td>combinazioni RGB</td><td><span class="lvl l0">stima</span></td><td>la fotocamera non registra lo spettro né l'IR</td></tr>
+  <tr><td>Duochrome Polaroid</td><td>meccanismo non pubblico</td><td><span class="lvl l0">stima</span></td><td>Polaroid, Reclaimed Green: «nessuno sa davvero» come funzioni</td></tr>
+  </table></div>
+</section>
+</div>
+
+<script>
+const BANDS={
+  off:{n:'Spento',nm:'—'},
+  blu:{n:'Blu',nm:'400–500 nm'}, verde:{n:'Verde',nm:'500–600 nm'}, rosso:{n:'Rosso',nm:'600–700 nm'},
+  giallo:{n:'Giallo (verde+rosso)',nm:'500–700 nm'}, ciano:{n:'Ortocromatica (blu+verde)',nm:'400–600 nm'},
+  pan:{n:'Pancromatica',nm:'400–700 nm'}, ir:{n:'Infrarosso (stima)',nm:'700–900 nm'}, magenta:{n:'Rosso + blu',nm:'400–500 + 600–700 nm'},
+  kgY:{n:'Curva reale Kodak Gold: strato del giallo',nm:'370–500 nm (scheda E-7022)'}, kgM:{n:'Curva reale Kodak Gold: strato del magenta',nm:'380–590 nm (scheda E-7022)'}, kgC:{n:'Curva reale Kodak Gold: strato del ciano',nm:'390–680 nm (scheda E-7022)'}
+};
+const DYES={
+  giallo:{n:'Giallo',c:[1,1,0]}, magenta:{n:'Magenta',c:[1,0,1]}, ciano:{n:'Ciano',c:[0,1,1]}, nero:{n:'Nero',c:[0,0,0]},
+  rosso:{n:'Rosso',c:[1,.08,.06]}, verde:{n:'Verde',c:[.08,.85,.15]}, blu:{n:'Blu',c:[.08,.15,1]}, arancio:{n:'Arancio',c:[1,.45,0]},
+  viola:{n:'Viola',c:[.55,.05,1]}, rosa:{n:'Rosa',c:[1,.32,.65]}, oro:{n:'Oro',c:[1,.75,.12]}, turchese:{n:'Turchese',c:[0,.9,.78]}, seppia:{n:'Seppia',c:[.75,.5,.25]}
+};
+const BASES={trasparente:{n:'Trasparente',c:[1,1,1]},rosa:{n:'Rosa',c:[1,.62,.78]},giallo:{n:'Giallo',c:[1,.88,.25]},blu:{n:'Blu',c:[.35,.62,1]},ambra:{n:'Ambra',c:[1,.75,.45]},menta:{n:'Menta',c:[.6,1,.82]},crema:{n:'Crema',c:[1,.96,.86]}};
+const MASKS={c41:{n:'Kodak Gold 200',d:[.25,.66,.99]},pro:{n:'Kodak pro (tipico)',d:[.20,.65,.85]},phoenix:{n:'Senza maschera (tipo Harman Phoenix II)',d:[.08,.08,.08]},hred:{n:'Harman Red',d:[.44,.65,.47]},zfc:{n:'Kodak ColorPlus 200 misurata (Zfc)',d:[.44,.75,1.03]},foma:{n:'Fomapan 100 35mm misurata (Zfc)',d:[.34,.35,.31]},metro:{n:'LomoChrome Metropolis misurata (Zfc)',d:[.45,.51,.74]},gp3:{n:'Shanghai GP3 100 misurata (Zfc)',d:[.17,.16,.15]},bn:{n:'B/N tipo HP5 Plus',d:[.18,.18,.18]},chiaro:{n:'Trasparente',d:[.05,.05,.05]}};
+// Curve caratteristiche misurate. Kodak Gold 200 (E-7022, estratte dal PDF vettoriale): densità Status M ogni 0,1 log H da -3,0 a +0,8 (log H ref -1,14 = grigio 18%).
+const GOLD={R:[0.251,0.255,0.259,0.28,0.308,0.337,0.365,0.394,0.422,0.451,0.479,0.511,0.565,0.619,0.672,0.726,0.78,0.834,0.887,0.941,0.995,1.051,1.106,1.162,1.217,1.273,1.329,1.384,1.44,1.479,1.517,1.555,1.593,1.631,1.67,1.708,1.746,1.782,1.812],
+ G:[0.657,0.661,0.666,0.69,0.722,0.755,0.787,0.819,0.852,0.884,0.917,0.952,1.008,1.065,1.122,1.179,1.236,1.293,1.35,1.407,1.464,1.52,1.577,1.633,1.69,1.746,1.803,1.859,1.915,1.965,2.013,2.06,2.104,2.134,2.164,2.194,2.224,2.254,2.284],
+ B:[0.991,0.99,0.985,0.985,0.985,0.985,1.013,1.052,1.091,1.13,1.185,1.25,1.314,1.379,1.443,1.508,1.572,1.637,1.702,1.763,1.823,1.882,1.941,2,2.059,2.119,2.178,2.237,2.298,2.354,2.41,2.466,2.512,2.547,2.582,2.617,2.652,2.687,2.722]};
+// Curve B/N Ilford/Harman (schede tecniche ufficiali, grafici raster estratti automaticamente dai pixel e verificati a vista): densità ogni 0,1 log relativo da 0.
+const BWC={"HP5": [0.18, 0.18, 0.18, 0.18, 0.18, 0.18, 0.183, 0.193, 0.213, 0.226, 0.259, 0.285, 0.318, 0.357, 0.413, 0.462, 0.534, 0.586, 0.652, 0.724, 0.786, 0.855, 0.92, 0.969, 1.055, 1.123, 1.176, 1.235, 1.31, 1.366, 1.441, 1.461, 1.556, 1.621, 1.683, 1.759, 1.811, 1.87, 1.936, 2.021, 2.06, 2.112], "FP4": [0.088, 0.088, 0.088, 0.088, 0.088, 0.092, 0.088, 0.088, 0.092, 0.095, 0.116, 0.136, 0.173, 0.218, 0.262, 0.323, 0.374, 0.425, 0.466, 0.551, 0.629, 0.697, 0.772, 0.847, 0.925, 1.034, 1.082, 1.167, 1.245, 1.33, 1.412, 1.517, 1.561, 1.622, 1.68, 1.735, 1.776, 1.81, 1.833, 1.847, 1.854, 1.854], "D100": [0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.084, 0.084, 0.084, 0.09, 0.108, 0.133, 0.158, 0.195, 0.238, 0.291, 0.356, 0.399, 0.461, 0.541, 0.578, 0.674, 0.727, 0.795, 0.878, 0.953, 1.055, 1.113, 1.188, 1.274, 1.352, 1.441, 1.534, 1.59, 1.664, 1.751, 1.812], "D400": [0.283, 0.283, 0.283, 0.283, 0.283, 0.286, 0.293, 0.306, 0.327, 0.354, 0.402, 0.436, 0.463, 0.538, 0.589, 0.657, 0.715, 0.78, 0.855, 0.923, 0.967, 1.066, 1.141, 1.212, 1.284, 1.365, 1.427, 1.464, 1.556, 1.624, 1.692, 1.754, 1.815, 1.873, 1.931, 1.965, 2.043, 2.091, 2.138, 2.176, 2.213, 2.241, 2.268, 2.292], "XP2": [0.267, 0.267, 0.267, 0.267, 0.267, 0.267, 0.267, 0.267, 0.276, 0.285, 0.304, 0.322, 0.359, 0.396, 0.442, 0.537, 0.571, 0.663, 0.727, 0.801, 0.902, 0.948, 1.034, 1.095, 1.169, 1.224, 1.298, 1.353, 1.399, 1.451, 1.494, 1.537, 1.574, 1.62, 1.647, 1.702, 1.721, 1.752, 1.776, 1.804, 1.831, 1.85, 1.868, 1.877, 1.887]};
+// Harman Red (scheda giugno 2025): curve R/G/B estratte dai pixel colorati, ogni 0,1 log relativo da 0.
+const REDC={"R": [0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.439, 0.495, 0.5, 0.523, 0.575, 0.631, 0.762, 0.874, 1.014, 1.22, 1.421, 1.636, 1.818, 2, 2.159, 2.243, 2.327, 2.397, 2.425, 2.439, 2.458], "G": [0.645, 0.645, 0.645, 0.645, 0.645, 0.645, 0.645, 0.645, 0.645, 0.645, 0.645, 0.645, 0.654, 0.654, 0.654, 0.65, 0.645, 0.645, 0.65, 0.654, 0.659, 0.664, 0.673, 0.682, 0.701, 0.729, 0.762, 0.799, 0.869, 0.935, 1.009, 1.126, 1.252, 1.379, 1.551, 1.724, 1.879, 2.005, 2.131, 2.252, 2.322, 2.388, 2.453, 2.486, 2.523, 2.547], "B": [0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.467, 0.472, 0.477, 0.481, 0.486, 0.495, 0.509, 0.523, 0.533, 0.556, 0.584, 0.612, 0.645, 0.682, 0.72, 0.757, 0.799, 0.836, 0.888, 0.944, 0.991, 1.093, 1.192, 1.262]};
+function tab(arr,x0,step){return x=>{const t=(x-x0)/step;if(t<=0)return arr[0];const n=arr.length-1;if(t>=n)return arr[n]+(x-(x0+n*step))*(arr[n]-arr[n-1])/step;const i=Math.floor(t),f=t-i;return arr[i]+(arr[i+1]-arr[i])*f}}
+// Punto di velocità = primo valore 0,1 sopra la D-min; il grigio 18% è posto 1,2 log sopra (convenzione: zona V = 4 stop sopra la zona I).
+const speedX=a=>{for(let i=0;i<a.length;i++)if(a[i]>=a[0]+.1)return i*.1;return 1};
+// Per le pellicole a colori con asse relativo: grigio dove il canale verde ha densità netta 0,6 (come il LAD Kodak: 0,55–0,75 netti).
+const netX=(a,dn)=>{for(let i=0;i<a.length;i++)if(a[i]>=a[0]+dn)return i*.1;return 2};
+const relShape=(a,xg)=>{const f=tab(a,0,.1);return x=>f(x+xg)-a[0]};
+const SHAPES={
+  gold:{R:(f=>x=>f(x)-GOLD.R[0])(tab(GOLD.R,-3+1.14,.1)),G:(f=>x=>f(x)-GOLD.G[0])(tab(GOLD.G,-3+1.14,.1)),B:(f=>x=>f(x)-GOLD.B[0])(tab(GOLD.B,-3+1.14,.1))},
+  red:(()=>{const xg=netX(REDC.G,.6);return {R:relShape(REDC.R,xg),G:relShape(REDC.G,xg),B:relShape(REDC.B,xg)}})()
+};
+const BWS={};for(const k in BWC)BWS[k]=relShape(BWC[k],speedX(BWC[k])+1.2);
+const BWN={HP5:'Ilford HP5 Plus',FP4:'Ilford FP4 Plus',D100:'Ilford Delta 100',D400:'Ilford Delta 400',XP2:'Ilford XP2 Super'};
+const CSN={gold:'Kodak Gold 200',red:'Harman Red'};
+const SHAPE=new Proxy({},{get:(t,k)=>k==='K'?BWS[state.bw||'HP5']:SHAPES[state.cset||'gold'][k]});
+// Carta Harman Galerie RC Digital Silver (scheda set. 2011): curva sensitometrica verde estratta dal PDF vettoriale, densità ogni 0,05 log E da -1,3 a +1,3.
+const PAPER=tab([0.022,0.022,0.024,0.04,0.056,0.076,0.102,0.142,0.186,0.258,0.33,0.409,0.511,0.631,0.754,0.883,1.012,1.178,1.323,1.496,1.625,1.746,1.829,1.889,1.948,1.98,2.002,2.022,2.028,2.04,2.04,2.052,2.052,2.063,2.063,2.063,2.063,2.075,2.075,2.075,2.075,2.075,2.087,2.087,2.087,2.087,2.087,2.087,2.087,2.099,2.099,2.099,2.099],-1.3,.05);
+const shapeFor=d=>d==='giallo'?'B':d==='magenta'?'G':d==='ciano'?'R':d==='nero'?'K':'G';
+const RECIPES={
+  standard:{n:'Colore standard (Kodak Gold)',t:'normale',L:[['kgY','giallo',1,1],['kgM','magenta',1,1],['kgC','ciano',1,1]],mask:'c41',base:'trasparente'},
+  azure:{n:'Tipo Switch Azure / Turquoise',t:'scambio',L:[['blu','ciano',1,1],['verde','magenta',1,1],['rosso','giallo',1,1]],mask:'phoenix',base:'trasparente'},
+  purple:{n:'Tipo Purple',t:'scambio',L:[['verde','giallo',1,1],['blu','magenta',1,1],['giallo','ciano',1,1]],mask:'c41',base:'trasparente'},
+  aero:{n:'Tipo Aerochrome',t:'infrarosso',L:[['verde','giallo',1,1],['rosso','magenta',1,1],['ir','ciano',1.1,1]],mask:'c41',base:'trasparente'},
+  redscale:{n:'Tipo Redscale',t:'redscale',L:[['pan','ciano',1,1,0],['pan','magenta',1,1,-1.7],['pan','giallo',1,1,-4]],mask:'c41',base:'trasparente'},
+  hred:{n:'Harman Red (dati scheda)',t:'redscale',L:[['magenta','ciano',1,1],['ciano','magenta',1,1],['blu','giallo',1,1]],mask:'hred',base:'trasparente',cset:'red',bal:'fisso'},
+  duoRosa:{n:'Duochrome rosa e nero',t:'duochrome',L:[['pan','nero',1.2,1],['off','giallo',1,1],['off','giallo',1,1]],mask:'bn',base:'rosa'},
+  duoGiallo:{n:'Duochrome giallo e nero',t:'duochrome',L:[['pan','nero',1.2,1],['off','giallo',1,1],['off','giallo',1,1]],mask:'bn',base:'giallo'},
+  duoBlu:{n:'Duochrome blu e nero',t:'duochrome',L:[['pan','nero',1.2,1],['off','giallo',1,1],['off','giallo',1,1]],mask:'bn',base:'blu'},
+  cromoBlu:{n:'Cromogena monocolore blu',t:'proposta',L:[['pan','blu',1.1,1],['off','giallo',1,1],['off','giallo',1,1]],mask:'c41',base:'trasparente'},
+  orto:{n:'B/N ortocromatica',t:'b/n',L:[['ciano','nero',1.3,1],['off','giallo',1,1],['off','giallo',1,1]],mask:'bn',base:'trasparente'},
+  irbn:{n:'Infrarosso B/N',t:'infrarosso',L:[['ir','nero',1.4,1],['off','giallo',1,1],['off','giallo',1,1]],mask:'bn',base:'trasparente'}
+};
+let state={L:RECIPES.standard.L.map(l=>l.slice()),base:'trasparente',ev:0,grain:.3,scene:'A',recipe:'standard',proc:'neg',mask:MASKS.c41.d.slice(),maskName:'c41',pg:1,print:'scan',cset:'gold',bw:'HP5',bal:'auto'};
+try{const s=JSON.parse(localStorage.getItem('labpell2')||'null');if(s&&s.L&&s.L.length===3)state=Object.assign(state,s)}catch(e){}
+const save=()=>{try{localStorage.setItem('labpell2',JSON.stringify(state))}catch(e){}};
+
+// ---------- immagini ----------
+const lin=new Float32Array(256);for(let i=0;i<256;i++){const v=i/255;lin[i]=v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4)}
+const gam=new Uint8ClampedArray(4096);for(let i=0;i<4096;i++){const v=i/4095;gam[i]=Math.round(255*(v<=.0031308?12.92*v:1.055*Math.pow(v,1/2.4)-.055))}
+const SC={};let W=960,H=639;
+// Prepara una scena da RGB lineare. L'esposizione di base è normalizzata come un esposimetro a media: media geometrica della luminanza = 18%.
+function prepLinear(key,w,h,Rl,Gl,Bl,kind){
+  W=w;H=h;const N=w*h;let sl=0,n=0;
+  for(let i=0;i<N;i+=7){const Y=.2126*Rl[i]+.7152*Gl[i]+.0722*Bl[i];if(Y>1e-5){sl+=Math.log(Y);n++}}
+  const k=.18/Math.exp(sl/n);
+  const o={R:new Float32Array(N),G:new Float32Array(N),B:new Float32Array(N),IR:new Float32Array(N),src:new Uint8ClampedArray(N*4),kind,k};
+  const enc=v=>gam[Math.min(4095,Math.max(0,(v*4095)|0))];
+  for(let i=0,p=0;i<N;i++,p+=4){
+    const R=Rl[i]*k,G=Gl[i]*k,B=Bl[i]*k;o.R[i]=R;o.G[i]=G;o.B[i]=B;
+    const r8=enc(R),g8=enc(G),b8=enc(B);o.src[p]=r8;o.src[p+1]=g8;o.src[p+2]=b8;o.src[p+3]=255;
+    const r=r8/255,g=g8/255,b=b8/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),s=mx-mn;
+    const veg=Math.min(1,Math.max(0,((g-b)*2.2+(g-r)*1.2)*1.6))*Math.min(1,s*6);
+    const sky=Math.min(1,Math.max(0,(b-r)*2.2))*Math.min(1,Math.max(0,(b-g)*5+.4));
+    const base=.65*R+.35*G;o.IR[i]=Math.max(0,base+veg*.75*Math.max(G,.05)/.18*.18-.6*sky*base);
+  }
+  o.w=w;o.h=h;SC[key]=o;
+}
+// Foto caricate (JPEG/PNG): decodifica sRGB → lineare. Approssimazione: la curva tonale della fotocamera resta dentro.
+function prep(img,key){
+  const sc=Math.min(1,960/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');const w=Math.round(img.naturalWidth*sc),h=Math.round(img.naturalHeight*sc);c.width=w;c.height=h;
+  const x=c.getContext('2d');x.drawImage(img,0,0,w,h);const d=x.getImageData(0,0,w,h).data;const N=w*h;
+  const Rl=new Float32Array(N),Gl=new Float32Array(N),Bl=new Float32Array(N);for(let i=0,p=0;i<N;i++,p+=4){Rl[i]=lin[d[p]];Gl[i]=lin[d[p+1]];Bl[i]=lin[d[p+2]]}
+  prepLinear(key,w,h,Rl,Gl,Bl,'jpeg');
+}
+// Scene di esempio: dati lineari a 16 bit ricavati direttamente dai NEF (DSC_2910, DSC_2916).
+async function loadLinear(key){const meta=await (await fetch('img/scene.json')).json();const m=meta[key];const b64=(await (await fetch(`img/scena_${key}.lin.txt`)).text()).trim();const bin=atob(b64);const bytes=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);const u=new Uint16Array(bytes.buffer);const N=m.w*m.h;
+  const Rl=new Float32Array(N),Gl=new Float32Array(N),Bl=new Float32Array(N);for(let i=0;i<N;i++){Rl[i]=u[3*i]/65535;Gl[i]=u[3*i+1]/65535;Bl[i]=u[3*i+2]/65535}
+  prepLinear(key,m.w,m.h,Rl,Gl,Bl,'raw')}
+const noise=new Float32Array(960*700);{let s=1234567;for(let i=0;i<noise.length;i++){s=(s*1103515245+12345)&0x7fffffff;const u=s/0x7fffffff;s=(s*1103515245+12345)&0x7fffffff;const v=s/0x7fffffff;noise[i]=Math.sqrt(-2*Math.log(u+1e-9))*Math.cos(6.2832*v)}}
+
+function band(o,k,i){switch(k){case'blu':return o.B[i];case'verde':return o.G[i];case'rosso':return o.R[i];case'giallo':return .5*(o.R[i]+o.G[i]);
+  case'ciano':return .6*o.G[i]+.4*o.B[i];case'pan':return .2126*o.R[i]+.7152*o.G[i]+.0722*o.B[i];case'ir':return o.IR[i];case'magenta':return .5*(o.R[i]+o.B[i]);default:return 0}}
+
+let last=null,lastNeg=null;
+const sig=(Dt,s,x,x0,up)=>Dt/(1+Math.exp((up?-s:s)*(x-x0)));
+const sp_=(v)=>v>30?v:Math.log1p(Math.exp(v));
+// Curva del negativo: forma presa dalle curve misurate (SHAPE), scalata dal contrasto, spalla morbida verso Dt.
+const negD=(x,sh,gm,Dt)=>{const lin=Math.max(0,gm*SHAPE[sh](x));return Dt-sp_(6*(Dt-lin))/6};
+// ================= MODELLO SPETTRALE =================
+// SPEC: lunghezze d'onda 400–700 nm ogni 10; B = basi di Mallett & Yuksel 2019 (RGB lineare sRGB → spettro di riflettanza);
+// D65; Wc = da spettro di trasmissione a RGB lineare (CIE 1931 2°, D65, matrice sRGB; bianco → 1,1,1);
+// sens = sensibilità spettrali Kodak Gold 200 (E-7022, estratte dal PDF vettoriale); dye = densità spettrali Kodak Vision3 50D (normalizzate al picco).
+const SPEC={"lam":[400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700],"B":[[0.23921,0.12175,0.04443,0.02232,0.01418,0.01199,0.01091,0.01064,0.01103,0.01115,0.00892,0.00671,0.00554,0.00503,0.00543,0.0064,0.00858,0.01357,0.03208,0.62439,0.94925,0.95819,0.95568,0.9541,0.93868,0.90461,0.84779,0.75253,0.61869,0.47296,0.40536],[0.29432,0.18889,0.07869,0.04229,0.02976,0.03099,0.03467,0.04068,0.08091,0.37968,0.87621,0.94066,0.96164,0.97099,0.97312,0.97335,0.97335,0.97106,0.95494,0.36435,0.04123,0.03192,0.03263,0.03156,0.0414,0.06343,0.09954,0.15759,0.23147,0.29603,0.31782],[0.46647,0.68936,0.87688,0.9354,0.95606,0.95703,0.95442,0.94868,0.90806,0.60917,0.11487,0.05264,0.03282,0.02398,0.02145,0.02025,0.01807,0.01537,0.01297,0.01126,0.00952,0.00989,0.01169,0.01434,0.01992,0.03196,0.05267,0.08988,0.14983,0.23101,0.27683]],"D65":[0.70243,0.77654,0.79306,0.73577,0.8901,0.99318,1.0,0.97495,0.98397,0.9236,0.92821,0.91503,0.88947,0.91407,0.8862,0.88315,0.84881,0.81769,0.81306,0.75277,0.76398,0.76053,0.7444,0.70696,0.71045,0.67928,0.68087,0.69838,0.66448,0.5918,0.60783],"Wc":[[0.00094,0.0031,0.00953,0.01738,0.02211,0.01638,0.002,-0.01622,-0.034,-0.04626,-0.06395,-0.08409,-0.09202,-0.08275,-0.05306,-0.01275,0.03749,0.09189,0.14827,0.18192,0.21113,0.2105,0.18169,0.13234,0.09392,0.05728,0.03354,0.01827,0.00932,0.00403,0.00207],[-0.00081,-0.00271,-0.00847,-0.01605,-0.02199,-0.02002,-0.01113,0.00378,0.02212,0.03894,0.06332,0.09592,0.12621,0.14849,0.14896,0.14233,0.12203,0.09541,0.0674,0.03569,0.01315,-0.00236,-0.00939,-0.00987,-0.00836,-0.0056,-0.00344,-0.00192,-0.00099,-0.00044,-0.00022],[0.00568,0.01921,0.06106,0.12152,0.18513,0.20909,0.19759,0.14744,0.09195,0.04655,0.02301,0.00666,-0.00583,-0.01247,-0.01554,-0.01673,-0.01572,-0.01366,-0.01133,-0.00808,-0.00587,-0.00394,-0.00249,-0.00144,-0.00085,-0.00046,-0.00025,-0.00013,-6e-05,-3e-05,-1e-05]],"sens":{"goldY":[97.72372,131.82567,123.02688,123.02688,144.54398,134.89629,151.35612,229.08677,109.64782,8.91251,2.23872,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"goldM":[16.59587,16.2181,13.18257,10.47129,8.31764,8.12831,8.12831,8.51138,14.12538,29.51209,45.70882,56.23413,74.13102,107.15193,154.88166,173.78008,144.54398,81.28305,31.62278,4.67735,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"goldC":[3.98107,3.31131,2.39883,1.69824,1.23027,1.0,0.95499,0.0,0.0,1.14815,1.51356,1.90546,2.39883,2.75423,3.31131,4.0738,5.7544,7.58578,15.13561,23.98833,33.11311,42.65795,58.88437,77.62471,117.48976,162.18101,141.25375,40.73803,13.80384,0.0,0.0]},"dye":{"giallo":[0.61,0.767,0.903,0.985,1.0,0.939,0.809,0.638,0.468,0.324,0.214,0.141,0.095,0.067,0.05,0.038,0.029,0.025,0.024,0.023,0.023,0.024,0.024,0.025,0.024,0.023,0.021,0.019,0.017,0.015,0.013],"magenta":[0.0,0.0,0.0,0.0,0.0,0.0,0.024,0.081,0.204,0.363,0.537,0.711,0.862,0.968,1.0,0.935,0.786,0.6,0.43,0.302,0.215,0.157,0.119,0.095,0.079,0.069,0.062,0.057,0.053,0.05,0.047],"ciano":[0.24,0.199,0.155,0.118,0.09,0.068,0.056,0.048,0.041,0.038,0.039,0.044,0.052,0.068,0.092,0.125,0.16,0.199,0.253,0.333,0.429,0.526,0.619,0.708,0.791,0.865,0.927,0.974,1.0,1.0,0.973]}};const NL=SPEC.lam.length;
+const box=(a,b)=>SPEC.lam.map(l=>l>=a&&l<b+1?1:0);
+const SENS={blu:box(400,499),verde:box(500,599),rosso:box(600,700),giallo:box(500,700),ciano:box(400,599),pan:box(400,700),magenta:SPEC.lam.map(l=>(l<500||l>=600)?1:0),kgY:SPEC.sens.goldY,kgM:SPEC.sens.goldM,kgC:SPEC.sens.goldC};
+// peso RGB di ogni banda: esposizione = w·rgb (lo spettro ricostruito è lineare in rgb); bianco → 1
+const WB={};for(const k in SENS){const s=SENS[k];let den=0;const w=[0,0,0];for(let l=0;l<NL;l++){den+=SPEC.D65[l]*s[l];for(let c=0;c<3;c++)w[c]+=SPEC.B[c][l]*SPEC.D65[l]*s[l]}WB[k]=w.map(v=>v/den)}
+// spettro di trasmissione di un colore (per coloranti "fantasia", supporti, carte)
+const specOf=c=>SPEC.lam.map((_,l)=>Math.min(1,Math.max(.003,c[0]*SPEC.B[0][l]+c[1]*SPEC.B[1][l]+c[2]*SPEC.B[2][l])));
+const DYESPEC={};
+function dyeSpec(k,masked){const key=k+(masked?'_m':'');if(DYESPEC[key])return DYESPEC[key];let d;
+  if(SPEC.dye[k]){d=SPEC.dye[k].slice();
+    // maschera ad accoppiatori colorati: annulla gli assorbimenti indesiderati del ciano (<580 nm) e del magenta (<480 nm); lo strato del giallo non è mascherato
+    if(masked&&k==='ciano')d=d.map((v,l)=>SPEC.lam[l]<580?0:v);if(masked&&k==='magenta')d=d.map((v,l)=>SPEC.lam[l]<480?0:v)}
+  else if(k==='nero')d=new Array(NL).fill(1);
+  else{const lc=DYES[k].c.map(v=>Math.pow(v,2.2));const t=specOf(lc);d=t.map(v=>-Math.log10(v));const mx=Math.max(...d);d=d.map(v=>v/mx)}
+  return DYESPEC[key]=Float32Array.from(d)}
+const WcF=SPEC.Wc.map(r=>Float32Array.from(r));
+const toRGB=(T,out)=>{let r=0,g=0,b=0;for(let l=0;l<NL;l++){const t=T[l];r+=WcF[0][l]*t;g+=WcF[1][l]*t;b+=WcF[2][l]*t}out[0]=r;out[1]=g;out[2]=b;return out};
+const MASKED_SET=new Set(['c41','pro','zfc']);
+function layerExp(o,L,i){return L.b==='ir'?o.IR[i]:L.w[0]*o.R[i]+L.w[1]*o.G[i]+L.w[2]*o.B[i]}
+// prepara tutto ciò che non dipende dal pixel
+function prepareModel(forState){const st=forState||state;const neg=st.proc==='neg';const masked=neg&&MASKED_SET.has(st.maskName);
+  const Ls=st.L.map(([b,dye,gm,dm,fo=0],j)=>{const kf=Math.pow(2,fo);const d=dyeSpec(dye,masked);const w=WB[b]||null;
+    if(neg){const Dt=3*dm,sh=shapeFor(dye);return {b,dye,neg:1,Dt,sh,gm,kf,d,w,off:j*7919}}
+    const Dt=3*dm,s=4*gm/Dt,x0=-Math.log(Math.max(Dt/.75-1,.05))/s;return {b,dye,Dt,s,x0,kf,d,w,off:j*7919}}).filter(L=>L.b!=='off');
+  const maskT=specOf(st.mask.map(v=>Math.pow(10,-v)));const baseT=specOf(BASES[st.base].c.map(v=>Math.pow(v,2.2)));
+  const M={neg,masked,Ls,maskT,baseT,st};
+  if(neg){ // taratura su scala di grigi (come si profila uno scanner): esposizioni neutre da -3 a +3 log
+    const xr=[],Dr=[[],[],[]];const T=new Float32Array(NL),rgb=[0,0,0];
+    const refM=st.bal==='fisso'?prepareModel(Object.assign({},st,{L:RECIPES.standard.L,maskName:'c41',mask:MASKS.c41.d,bal:'auto'})):M;
+    for(let x=-3;x<=3.001;x+=.05){negSpectrum(refM,x,null,T);toRGB(T,rgb);xr.push(x);for(let c=0;c<3;c++)Dr[c].push(-Math.log10(Math.max(rgb[c],1e-7)))}
+    M.xr=xr;M.Dr=Dr;M.Dref=[0,1,2].map(c=>Dr[c][xr.findIndex(v=>Math.abs(v)<1e-6)])}
+  return M}
+// spettro del negativo per un'esposizione neutra x (grigio) o per esposizioni per strato xs
+function negSpectrum(M,x,xs,T){const dl=M.Ls.map((L,j)=>negD(xs?xs[j]:x+Math.log10(L.kf),L.sh,L.gm,L.Dt));
+  for(let l=0;l<NL;l++){let D=0;for(let j=0;j<M.Ls.length;j++)D+=dl[j]*M.Ls[j].d[l];T[l]=M.maskT[l]*Math.pow(10,-D)}return dl}
+const interpInv=(Dv,Dr,xr)=>{if(Dv<=Dr[0])return xr[0];const n=Dr.length;if(Dv>=Dr[n-1])return xr[n-1];let lo=0,hi=n-1;while(hi-lo>1){const m=(lo+hi)>>1;if(Dr[m]<=Dv)lo=m;else hi=m}const t=(Dv-Dr[lo])/((Dr[hi]-Dr[lo])||1e-9);return xr[lo]+t*(xr[hi]-xr[lo])};
+// calcola un pixel; se det è un oggetto, lo riempie con i passaggi intermedi (per l'ispezione)
+const _T=new Float32Array(NL),_rgb=[0,0,0],_pr=[0,0,0];
+function pixel(o,i,M,k,g,det){const st=M.st;const xs=[];
+  for(const L of M.Ls){let e=layerExp(o,L,i)*k*L.kf;let x=Math.log10(Math.max(e,1e-4)/.18);if(g)x+=noise[(i+L.off)%noise.length]*g;xs.push(x)}
+  if(M.neg){const dl=negSpectrum(M,0,xs,_T);toRGB(_T,_rgb);const neg=[_rgb[0],_rgb[1],_rgb[2]];
+    const Ds=neg.map(v=>-Math.log10(Math.max(v,1e-7)));const bT=M.baseT;const paperRGB=toRGB(bT,[0,0,0]);
+    for(let c=0;c<3;c++){let y;
+      if(st.print==='carta'){y=-.604-st.pg*(Ds[c]-M.Dref[c]);_pr[c]=paperRGB[c]*Math.pow(10,-PAPER(y))}
+      else{y=interpInv(Ds[c],M.Dr[c],M.xr);const Dpm=2.2,sp=4*st.pg/Dpm,y0=-Math.log(Dpm/.75-1)/sp;_pr[c]=paperRGB[c]*Math.pow(10,-sig(Dpm,sp,y,y0,0))}}
+    if(det){det.xs=xs;det.D=dl;det.neg=neg;det.Ds=Ds;det.pos=_pr.slice()}
+    return {neg,pos:_pr}}
+  else{const dl=[];for(let j=0;j<M.Ls.length;j++){const L=M.Ls[j];dl.push(sig(L.Dt,L.s,xs[j],L.x0,0))}
+    for(let l=0;l<NL;l++){let D=0;for(let j=0;j<M.Ls.length;j++)D+=dl[j]*M.Ls[j].d[l];_T[l]=M.baseT[l]*Math.pow(10,-D)}
+    toRGB(_T,_pr);if(det){det.xs=xs;det.D=dl;det.pos=_pr.slice()}return {neg:null,pos:_pr}}}
+const enc8=v=>gam[Math.min(4095,Math.max(0,(v*4095)|0))];
+function render(){
+  const o=SC[state.scene];if(!o)return;W=o.w;H=o.h;const M=prepareModel();const neg=M.neg;window.MODEL=M;
+  const cv=document.getElementById('out');cv.width=W;cv.height=H;const ctx=cv.getContext('2d');const im=ctx.createImageData(W,H);const d=im.data;const N=W*H;
+  let nim=null,nd=null,nctx=null;if(neg){const nc=document.getElementById('neg');nc.width=W;nc.height=H;nctx=nc.getContext('2d');nim=nctx.createImageData(W,H);nd=nim.data}
+  const k=Math.pow(2,state.ev),g=state.grain*.12;let sl=0,cnt=0;
+  // ciclo veloce (stessa matematica di pixel(), senza allocazioni)
+  const nLy=M.Ls.length,LN10=Math.LN10,xsA=new Float64Array(nLy),dlA=new Float64Array(nLy);
+  const DD=new Float64Array(nLy*NL);M.Ls.forEach((L,j)=>{for(let l=0;l<NL;l++)DD[j*NL+l]=L.d[l]*LN10});
+  const lnMask=new Float64Array(NL),lnBase=new Float64Array(NL);for(let l=0;l<NL;l++){lnMask[l]=Math.log(M.maskT[l]);lnBase[l]=Math.log(M.baseT[l])}
+  const W0=WcF[0],W1=WcF[1],W2=WcF[2];const paperRGB=toRGB(M.baseT,[0,0,0]);const st=state;const Dpm=2.2,spp=4*st.pg/Dpm,y0=-Math.log(Dpm/.75-1)/spp;const carta=st.print==='carta';
+  const pr=[0,0,0];
+  for(let i=0,p=0;i<N;i++,p+=4){
+    for(let j=0;j<nLy;j++){const L=M.Ls[j];const e=(L.b==='ir'?o.IR[i]:L.w[0]*o.R[i]+L.w[1]*o.G[i]+L.w[2]*o.B[i])*k*L.kf;let x=Math.log10(e>1e-4?e/.18:1e-4/.18);if(g)x+=noise[(i+L.off)%noise.length]*g;
+      dlA[j]=neg?negD(x,L.sh,L.gm,L.Dt):sig(L.Dt,L.s,x,L.x0,0)}
+    let r=0,gg=0,bb=0;const lnT=neg?lnMask:lnBase;
+    for(let l=0;l<NL;l++){let q=lnT[l];for(let j=0;j<nLy;j++)q-=dlA[j]*DD[j*NL+l];const t=Math.exp(q);r+=W0[l]*t;gg+=W1[l]*t;bb+=W2[l]*t}
+    if(neg){nd[p]=enc8(r);nd[p+1]=enc8(gg);nd[p+2]=enc8(bb);nd[p+3]=255;const v=[r,gg,bb];
+      for(let c=0;c<3;c++){const Ds=-Math.log10(v[c]>1e-7?v[c]:1e-7);
+        if(carta)pr[c]=paperRGB[c]*Math.pow(10,-PAPER(-.604-st.pg*(Ds-M.Dref[c])));
+        else pr[c]=paperRGB[c]*Math.pow(10,-sig(Dpm,spp,interpInv(Ds,M.Dr[c],M.xr),y0,0))}}
+    else{pr[0]=r;pr[1]=gg;pr[2]=bb}
+    d[p]=enc8(pr[0]);d[p+1]=enc8(pr[1]);d[p+2]=enc8(pr[2]);d[p+3]=255;
+    if((i&63)===0){sl+=Math.log(Math.max(1e-4,.2126*pr[0]+.7152*pr[1]+.0722*pr[2]));cnt++}}
+  ctx.putImageData(im,0,0);last=im;if(neg){nctx.putImageData(nim,0,0);lastNeg=nim}
+  // becher: miscela dei coloranti versati (densità 0,5 ciascuno) su luce bianca
+  const T=new Float32Array(NL);for(let l=0;l<NL;l++){let D=0;for(const L of M.Ls)D+=.5*L.d[l];T[l]=Math.pow(10,-D)}const mix=toRGB(T,[0,0,0]).map(enc8);
+  document.getElementById('liquid').setAttribute('fill',`rgb(${mix})`);
+  const ml=Math.exp(sl/cnt), rf=refLum[state.scene]||ml, ev=Math.log2(rf/Math.max(ml,1e-4));
+  document.getElementById('stat').innerHTML=`Processo <b>${neg?'negativo':'invertibile'}</b> · strati attivi <b>${M.Ls.length}</b>${neg?` · maschera ${M.masked?'<b>attiva</b> (accoppiatori colorati)':'assente'}`:''}<br>Il becher mostra il colore dei coloranti versati insieme.<br>Luminosità media del positivo (media logaritmica) <b>${Math.round(ml*100)}%</b> (originale ${Math.round(rf*100)}%)<br>`+
+    (Math.abs(ev)<.3?`Esposizione <b>equilibrata</b>`:`<span class="warn">Per tornare alla luminosità dell'originale: ${ev>0?'+':''}${ev.toFixed(1)} EV</span>`);
+  if(window.inspectAt)window.inspectAt();
+}
+const refLum={};
+function calcRef(key){const o=SC[key];let s=0,c=0;for(let i=0;i<o.R.length;i+=64){s+=Math.log(Math.max(1e-4,Math.min(1,.2126*o.R[i]+.7152*o.G[i]+.0722*o.B[i])));c++}refLum[key]=Math.exp(s/c)}
+
+// ---------- interfaccia ----------
+const tubesEl=document.getElementById('tubes');
+function tubeSVG(color,on){const c=`rgb(${color.map(v=>Math.round(v*255))})`;return `<svg viewBox="0 0 44 120" aria-hidden="true">
+  <path d="M10 6 L10 100 Q10 114 22 114 Q34 114 34 100 L34 6" fill="none" stroke="var(--glass-edge)" stroke-width="2.5"/>
+  <line x1="6" y1="6" x2="38" y2="6" stroke="var(--glass-edge)" stroke-width="2.5"/>
+  ${on?`<path d="M12 44 L32 44 L32 100 Q32 112 22 112 Q12 112 12 100 Z" fill="${c}"/>`:''}</svg>`}
+function opts(obj,sel){return Object.entries(obj).map(([k,v])=>`<option value="${k}"${k===sel?' selected':''}>${v.n}</option>`).join('')}
+function buildTubes(){
+  tubesEl.innerHTML='';
+  state.L.forEach(([b,dye,gm,dm,fo=0],j)=>{
+    const on=b!=='off';const el=document.createElement('div');el.className='tube'+(on?'':' off');
+    el.innerHTML=`${tubeSVG(DYES[dye].c,on)}<div class="fields">
+      <div class="lbl"><span>Strato ${j+1}</span><span>${BANDS[b].nm}</span></div>
+      <div class="row"><label for="b${j}">Sensibile a</label><select id="b${j}">${opts(BANDS,b)}</select></div>
+      <div class="row"><label for="d${j}">Colorante</label><select id="d${j}"${on?'':' disabled'}>${opts(DYES,dye)}</select></div>
+      <div class="row"><label for="g${j}">Contrasto</label><div class="rng"><input type="range" id="g${j}" min="0.3" max="3" step="0.05" value="${gm}"${on?'':' disabled'}><span class="val">${(+gm).toFixed(2)}</span></div></div>
+      <div class="row"><label for="m${j}">Densità max</label><div class="rng"><input type="range" id="m${j}" min="0.1" max="1" step="0.05" value="${dm}"${on?'':' disabled'}><span class="val">${Math.round(dm*100)}%</span></div></div>
+      <div class="row"><label for="f${j}">Luce ricevuta</label><div class="rng"><input type="range" id="f${j}" min="-5" max="0" step="0.1" value="${fo}"${on?'':' disabled'}><span class="val">${fo?fo.toFixed(1)+' EV':'piena'}</span></div></div>
+    </div>`;
+    tubesEl.appendChild(el);
+    el.querySelector(`#b${j}`).addEventListener('change',e=>{state.L[j][0]=e.target.value;changed(true)});
+    el.querySelector(`#d${j}`).addEventListener('change',e=>{state.L[j][1]=e.target.value;changed(true)});
+    el.querySelector(`#g${j}`).addEventListener('input',e=>{state.L[j][2]=+e.target.value;e.target.nextElementSibling.textContent=(+e.target.value).toFixed(2);changed(false)});
+    el.querySelector(`#f${j}`).addEventListener('input',e=>{state.L[j][4]=+e.target.value;e.target.nextElementSibling.textContent=+e.target.value?(+e.target.value).toFixed(1)+' EV':'piena';changed(false)});
+    el.querySelector(`#m${j}`).addEventListener('input',e=>{state.L[j][3]=+e.target.value;e.target.nextElementSibling.textContent=Math.round(e.target.value*100)+'%';changed(false)});
+  });
+}
+function buildBases(){const el=document.getElementById('bases');el.innerHTML='';for(const[k,v]of Object.entries(BASES)){const b=document.createElement('button');b.type='button';b.className='sw';b.title=v.n;b.setAttribute('aria-label','Base '+v.n);b.style.background=`rgb(${v.c.map(x=>Math.round(x*255))})`;b.setAttribute('aria-pressed',k===state.base);b.onclick=()=>{state.base=k;buildBases();changed(false)};el.appendChild(b)}}
+function maskCss(){const c=state.mask.map(v=>gam[Math.min(4095,(Math.pow(10,-v)*4095)|0)]);document.getElementById('strip').style.setProperty('--mask',`rgb(${c})`);
+  document.getElementById('maskinfo').textContent=`supporto D ${state.mask.map(v=>v.toFixed(2)).join(' / ')}`}
+function buildProc(){const neg=state.proc==='neg';document.querySelectorAll('#proc button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===state.proc));
+  document.getElementById('maskctl').hidden=!neg;document.getElementById('negbox').hidden=!neg;
+  document.getElementById('poscap').textContent=neg?'2 · Positivo (stampa o scansione)':'Diapositiva';
+  document.getElementById('baselbl').textContent=neg?'Carta':'Base';
+  const mp=document.getElementById('maskp');mp.innerHTML='';for(const[k,v]of Object.entries(MASKS)){const b=document.createElement('button');b.type='button';b.textContent=v.n;b.setAttribute('aria-pressed',k===state.maskName);b.onclick=()=>{state.maskName=k;state.mask=v.d.slice();buildProc();changed(false)};mp.appendChild(b)}
+  ['mR','mG','mB'].forEach((id,c)=>{const el=document.getElementById(id);el.value=state.mask[c];el.oninput=()=>{state.mask[c]=+el.value;state.maskName=null;buildProc();changed(false)}});
+  const pg=document.getElementById('pg');pg.value=state.pg;document.getElementById('pgv').textContent=(+state.pg).toFixed(2);
+  const cs=document.getElementById('cset');cs.innerHTML=Object.entries(CSN).map(([k,v])=>`<option value="${k}"${k===state.cset?' selected':''}>${v}</option>`).join('');cs.onchange=()=>{state.cset=cs.value;changed(false)};
+  const bs=document.getElementById('bwsel');bs.innerHTML=Object.entries(BWN).map(([k,v])=>`<option value="${k}"${k===state.bw?' selected':''}>${v}</option>`).join('');bs.onchange=()=>{state.bw=bs.value;changed(false)};
+  document.querySelectorAll('#balm button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.v===state.bal);b.onclick=()=>{state.bal=b.dataset.v;buildProc();changed(false)}});
+  document.querySelectorAll('#printm button').forEach(b=>{b.setAttribute('aria-pressed',b.dataset.v===state.print);b.onclick=()=>{state.print=b.dataset.v;buildProc();changed(false)}});
+  pg.oninput=()=>{state.pg=+pg.value;document.getElementById('pgv').textContent=state.pg.toFixed(2);changed(false)};maskCss()}
+document.getElementById('proc').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.proc=b.dataset.v;buildProc();changed(false)});
+function buildRecipes(){const el=document.getElementById('recipes');for(const[k,r]of Object.entries(RECIPES)){const b=document.createElement('button');b.type='button';b.className='chip';b.innerHTML=`${r.n}<small>${r.t}</small>`;b.onclick=()=>{state.L=r.L.map(l=>l.slice());state.base=r.base;state.recipe=k;if(r.mask){state.maskName=r.mask;state.mask=MASKS[r.mask].d.slice()}state.cset=r.cset||'gold';state.bal=r.bal||'auto';buildTubes();buildBases();buildProc();pour()};el.appendChild(b)}}
+let pending=null;
+function changed(rebuild){state.recipe=null;if(rebuild)buildTubes();sheet();save();clearTimeout(pending);pending=setTimeout(render,120)}
+function sheet(){
+  const lines=['SCHEDA DI PROGETTO — PELLICOLA SPERIMENTALE',`Processo: ${state.proc==='neg'?'negativo (tipo C-41), da stampare o scansionare':'invertibile (tipo E-6), diapositiva'}`,''];
+  state.L.forEach(([b,dye,gm,dm,fo=0],j)=>{lines.push(`Strato ${j+1}: `+(b==='off'?'assente':`sensibile a ${BANDS[b].n} (${BANDS[b].nm}) → forma colorante ${DYES[dye].n}; contrasto relativo ${(+gm).toFixed(2)}; densità max ${Math.round(dm*100)}%`+(fo?`; luce ricevuta ${fo.toFixed(1)} EV (filtri/strati sopra)`:'')))});
+  lines.push('',...(state.proc==='neg'?[`Supporto/maschera: ${state.maskName?MASKS[state.maskName].n+' (stima)':'personalizzato'}, densità R/V/B ${state.mask.map(v=>v.toFixed(2)).join(' / ')}`,`Curve del negativo: ${state.L.filter(l=>l[0]!=='off').map(l=>(shapeFor(l[1])==='K'?BWN[state.bw]:CSN[state.cset]+' '+shapeFor(l[1]))+' ×'+(+l[2]).toFixed(2)).join(' / ')}`,`Bilanciamento: ${state.bal==='fisso'?'fisso, filtraggio di un laboratorio C-41 tarato su Kodak Gold 200 (grigio 0,92/1,38/1,74)':'automatico sul grigio'}`,`Stampa: ${state.print==='carta'?'carta Harman Galerie RC (curva da scheda), contrasto ×'+(+state.pg).toFixed(2):'scansione neutra, contrasto complessivo '+(+state.pg).toFixed(2)}`,`Carta: ${BASES[state.base].n}`]:[`Base / supporto: ${BASES[state.base].n}`]),`Esposizione di prova: ${state.ev>0?'+':''}${state.ev} EV`,`Grana simulata: ${state.grain.toFixed(2)}`,'',
+    'Note: simulazione su file RAW RGB (Nikon Zfc). Le bande "giallo" e "ortocromatica" sono combinazioni di canali; l\'infrarosso è stimato. Le curve spettrali e i coloranti reali vanno definiti dal produttore.');
+  document.getElementById('sheet').textContent=lines.join('\n');
+}
+function pour(){
+  const lab=document.getElementById('lab');const dot=document.getElementById('puffdot');
+  const act=state.L.filter(l=>l[0]!=='off').map(l=>DYES[l[1]].c);const mix=act.length?act.reduce((a,c)=>a.map((v,i)=>v+c[i]/act.length),[0,0,0]):[.6,.6,.6];
+  dot.style.background=`rgb(${mix.map(v=>Math.round(v*255))})`;
+  lab.classList.remove('pouring');void lab.offsetWidth;lab.classList.add('pouring');
+  const liq=document.getElementById('liquid');liq.setAttribute('y','180');liq.setAttribute('height','20');
+  setTimeout(()=>{render();liq.setAttribute('y','80');liq.setAttribute('height','120');sheet();save()},420);
+  setTimeout(()=>lab.classList.remove('pouring'),1300);
+}
+document.getElementById('pour').onclick=pour;
+document.getElementById('upl').addEventListener('change',e=>{const f=e.target.files&&e.target.files[0];if(!f)return;const url=URL.createObjectURL(f);const im=new Image();im.onload=()=>{prep(im,'U');calcRef('U');URL.revokeObjectURL(url);const ub=document.getElementById('ubtn');ub.hidden=false;ub.textContent=f.name.length>22?f.name.slice(0,20)+'…':f.name;state.scene='U';document.querySelectorAll('#scene button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v==='U'));render()};im.src=url});
+document.getElementById('scene').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;state.scene=b.dataset.v;document.querySelectorAll('#scene button').forEach(x=>x.setAttribute('aria-pressed',x===b));save();render()});
+const ev=document.getElementById('ev'),gr=document.getElementById('grain');
+ev.value=state.ev;gr.value=state.grain;document.getElementById('evv').textContent=(state.ev>0?'+':'')+state.ev+' EV';document.getElementById('grainv').textContent=(+state.grain).toFixed(2);
+ev.oninput=()=>{state.ev=+ev.value;document.getElementById('evv').textContent=(state.ev>0?'+':'')+state.ev.toFixed(1)+' EV';changed(false)};
+gr.oninput=()=>{state.grain=+gr.value;document.getElementById('grainv').textContent=state.grain.toFixed(2);changed(false)};
+// tieni premuto = originale
+const frame=document.getElementById('frame'),tag=document.getElementById('ftag');
+const showOrig=()=>{const o=SC[state.scene];if(!o)return;const ctx=document.getElementById('out').getContext('2d');ctx.putImageData(new ImageData(new Uint8ClampedArray(o.src),W,H),0,0);tag.textContent='originale'};
+const showSim=()=>{if(last){document.getElementById('out').getContext('2d').putImageData(last,0,0)}tag.textContent='simulazione'};
+frame.addEventListener('pointerdown',e=>{e.preventDefault();if(inspOn){const r=document.getElementById('out').getBoundingClientRect();inspPt=[(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height];inspectAt();return}showOrig()});['pointerup','pointerleave','pointercancel'].forEach(t=>frame.addEventListener(t,showSim));
+document.getElementById('copy').onclick=async()=>{const t=document.getElementById('sheet').textContent;try{await navigator.clipboard.writeText(t);document.getElementById('copy').textContent='Copiata'}catch(e){const r=document.createRange();r.selectNodeContents(document.getElementById('sheet'));const s=getSelection();s.removeAllRanges();s.addRange(r);document.getElementById('copy').textContent='Testo selezionato: premi Ctrl+C'}setTimeout(()=>document.getElementById('copy').textContent='Copia la scheda',2200)};
+
+// ---------- sotto-scheda: mescolare i colori ----------
+const sw=(rgb)=>`rgb(${rgb.map(enc8).join(',')})`;
+function mixRGB(dy,dm,dc){const T=new Float32Array(NL);const Y=dyeSpec('giallo'),Mg=dyeSpec('magenta'),C=dyeSpec('ciano');for(let l=0;l<NL;l++)T[l]=Math.pow(10,-(dy*Y[l]+dm*Mg[l]+dc*C[l]));return toRGB(T,[0,0,0])}
+function buildMix(){const pairs=[['Giallo',[1,0,0]],['Magenta',[0,1,0]],['Ciano',[0,0,1]],['Giallo + magenta',[1,1,0]],['Giallo + ciano',[1,0,1]],['Magenta + ciano',[0,1,1]],['Tutti e tre',[1,1,1]]];
+  document.getElementById('mixpairs').innerHTML=pairs.map(([n,v])=>`<button type="button" class="chip" data-v="${v}" style="display:flex;gap:6px;align-items:center"><span class="sw-s" style="width:20px;height:20px;background:${sw(mixRGB(v[0],v[1],v[2]))}"></span>${n}</button>`).join('');
+  document.querySelectorAll('#mixpairs button').forEach(b=>b.onclick=()=>{const v=b.dataset.v.split(',').map(Number);['mxY','mxM','mxC'].forEach((id,i)=>document.getElementById(id).value=v[i]);upMix()});
+  ['mxY','mxM','mxC'].forEach(id=>document.getElementById(id).oninput=upMix);upMix()}
+function upMix(){const y=+mxY.value,m=+mxM.value,c=+mxC.value;['mxY','mxM','mxC'].forEach(id=>document.getElementById(id+'v').textContent=(+document.getElementById(id).value).toFixed(2));
+  const rgb=mixRGB(y,m,c);document.getElementById('mxout').style.background=sw(rgb);
+  const tolto=[];if(y>.05)tolto.push('il blu');if(m>.05)tolto.push('il verde');if(c>.05)tolto.push('il rosso');
+  document.getElementById('mxtxt').innerHTML=tolto.length?`Hai tolto ${tolto.join(', ')} dalla luce bianca. Passa: rosso ${Math.round(rgb[0]*100)}%, verde ${Math.round(rgb[1]*100)}%, blu ${Math.round(rgb[2]*100)}%.`:'Nessun colorante: passa tutta la luce bianca.'}
+function buildExample(){
+  const sky=[.07,.14,.36];
+  const runFor=(L,mk)=>{const st=Object.assign({},state,{L,proc:'neg',maskName:mk,mask:MASKS[mk].d,bal:'auto',print:'scan',pg:1,base:'trasparente',ev:0});const M=prepareModel(st);const det={};pixel({R:[sky[0]],G:[sky[1]],B:[sky[2]],IR:[.1]},0,M,1,0,det);return {M,det}};
+  const std=runFor(RECIPES.standard.L,'c41'),az=runFor(RECIPES.azure.L,'phoenix');
+  const qty=d=>d<.6?'<b>poco</b>':d<.8?'una quantità <b>media</b> di':'<b>molto</b>';
+  const lay=(r)=>r.M.Ls.map((L,j)=>{const d=r.det.D[j];const one=new Float32Array(NL);for(let l=0;l<NL;l++)one[l]=Math.pow(10,-d*L.d[l]);const stp=r.det.xs[j]/Math.log10(2);
+    return `<div class="step"><span class="sw-s" style="background:${sw(toRGB(one,[0,0,0]))}"></span><div><b>${BANDS[L.b].n.replace('Curva reale Kodak Gold: ','')}</b> → colorante <b>${DYES[L.dye].n.toLowerCase()}</b>. Luce ricevuta ${stp>=0?'+':''}${stp.toFixed(1)} stop rispetto al grigio → ${qty(d)} colorante nel negativo (D ${d.toFixed(2)}).</div></div>`}).join('');
+  const scene=sw(sky);
+  document.getElementById('example').innerHTML=`<p>Regola del negativo: <b>dove arriva più luce si forma più colorante</b>. Poi in stampa (o in scansione) tutto si inverte: tanto colorante nel negativo = tanta luce del colore opposto nella stampa. Partiamo da un azzurro di cielo <span class="sw-s" style="display:inline-block;width:18px;height:18px;vertical-align:middle;background:${scene}"></span>: molta luce blu, media verde, poca rossa.</p>
+  <div class="mixgrid">
+   <div><p><b>Pellicola normale</b> (curve e sensibilità Kodak Gold, coloranti Kodak Vision3).</p>${lay(std)}
+    <div class="step"><span class="sw-s" style="background:${sw(std.det.neg)}"></span><div>Il negativo: tanto giallo, poco ciano, più la maschera arancio.</div></div>
+    <div class="step"><span class="sw-s" style="background:${sw(std.det.pos)}"></span><div>In stampa: tanto giallo nel negativo → tanto <b>blu</b>; poco ciano → poco <b>rosso</b>. Risultato: <b>cielo azzurro</b>.</div></div></div>
+   <div><p><b>Coloranti scambiati</b> (tipo Switch Azure, senza maschera): lo strato che vede il blu forma <b>ciano</b>, quello che vede il rosso forma <b>giallo</b>.</p>${lay(az)}
+    <div class="step"><span class="sw-s" style="background:${sw(az.det.neg)}"></span><div>Il negativo: ora il colorante più abbondante è il ciano.</div></div>
+    <div class="step"><span class="sw-s" style="background:${sw(az.det.pos)}"></span><div>In stampa: tanto ciano nel negativo → tanto <b>rosso</b>; poco giallo → poco <b>blu</b>. Risultato: <b>il cielo diventa caldo</b>, come descrive la scheda Harman («cieli rosa e arancio»).</div></div></div></div>`}
+// ---------- ispezione di un punto ----------
+let inspOn=false,inspPt=null;
+document.getElementById('inspbtn').onclick=()=>{inspOn=!inspOn;document.getElementById('lab').classList.toggle('insp-on',inspOn);document.getElementById('inspbtn').textContent=inspOn?'Ispezione attiva: tocca la foto':'Ispeziona un punto'};
+window.inspectAt=()=>{if(!inspPt)return;const o=SC[state.scene];if(!o)return;const M=window.MODEL||prepareModel();const x=Math.min(o.w-1,Math.round(inspPt[0]*o.w)),y=Math.min(o.h-1,Math.round(inspPt[1]*o.h));const i=y*o.w+x;const det={};pixel(o,i,M,Math.pow(2,state.ev),0,det);
+  const scene=[o.src[i*4],o.src[i*4+1],o.src[i*4+2]];
+  const rows=M.Ls.map((L,j)=>{const d=det.D[j];const one=new Float32Array(NL);for(let l=0;l<NL;l++)one[l]=Math.pow(10,-d*L.d[l]);const st=det.xs[j]/Math.log10(2);
+    return `<div class="step"><span class="sw-s" style="background:${sw(toRGB(one,[0,0,0]))}"></span><div><b>Strato ${j+1}</b> · ${BANDS[L.b].n} → ${DYES[L.dye].n.toLowerCase()}<br><span class="small">luce ${st>=0?'+':''}${st.toFixed(1)} stop rispetto al grigio · colorante formato D ${d.toFixed(2)}${M.neg?' (nel negativo: più luce = più colorante)':' (in diapositiva: più luce = meno colorante)'}</span></div></div>`}).join('');
+  document.getElementById('insp').hidden=false;
+  document.getElementById('insp').innerHTML=`<div class="panel" style="padding:10px"><div class="sw-row"><span class="sw-s" style="background:rgb(${scene})"></span><span class="small">scena reale</span>${M.neg?`<span class="sw-s" style="background:${sw(det.neg)}"></span><span class="small">negativo</span>`:''}<span class="sw-s" style="background:${sw(det.pos)}"></span><span class="small">risultato</span></div>${rows}</div>`;
+  let mk=document.getElementById('mark');if(!mk){mk=document.createElement('span');mk.id='mark';mk.className='mark';document.getElementById('frame').appendChild(mk)}mk.style.left=(inspPt[0]*100)+'%';mk.style.top=(inspPt[1]*100)+'%'};
+
+// ---------- avvio ----------
+document.querySelectorAll('#scene button').forEach(x=>x.setAttribute('aria-pressed',x.dataset.v===state.scene));
+buildTubes();buildBases();buildRecipes();buildProc();sheet();buildMix();buildExample();
+if(state.scene==='U')state.scene='A';
+Promise.all(['A','B'].map(k=>loadLinear(k).then(()=>calcRef(k)))).then(render).catch(e=>{console.error(e);let loaded=0;['A','B'].forEach(k=>{const im=new Image();im.onload=()=>{prep(im,k);calcRef(k);if(++loaded===2)render()};im.src=`img/scena_${k}.jpg`})});
+</script>
+
+</body></html>
