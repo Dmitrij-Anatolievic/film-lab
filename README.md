@@ -115,3 +115,6 @@ RAW записывает три канала, а не полный спектр;
 ---
 
 © 2026 Dmitrij Musella (Дмитрий Муселла) · ORCID [0009-0004-4105-837X](https://orcid.org/0009-0004-4105-837X) · [MIT License](LICENSE)
+
+
+> Developed with AI-assisted coding tools (Claude/Anthropic)
